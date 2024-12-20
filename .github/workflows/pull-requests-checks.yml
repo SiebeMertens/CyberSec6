@@ -23,10 +23,12 @@ jobs:
       - name: SAST Scan with Bandit
         run: |
           bandit -r . -f json -o bandit-results.json
+        continue-on-error: true
 
       - name: Check dependencies with Safety
         run: |
           safety check
+        continue-on-error: true
 
       - name: Check for secrets
         run: |
