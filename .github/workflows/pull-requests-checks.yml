@@ -40,11 +40,8 @@ jobs:
       # Check for known vulnerabilities in dependencies using Safety
       - name: Check dependencies with Safety
         run: |
-          # Create requirements.txt with current dependencies
-          pip freeze >> requirements.txt
-          # Run safety check with detailed report, fail if vulnerabilities found
-          safety check --full-report || (echo "Vulnerable dependencies found" && exit 1)
-        # Continue workflow even if this step fails
+            safety check -r requirements.txt --full-report || (echo "Vulnerable dependencies found" && exit 1)
+
         continue-on-error: true
 
       # Scan codebase for potential secrets/credentials using detect-secrets
