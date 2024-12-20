@@ -40,6 +40,7 @@ jobs:
       # Check for known vulnerabilities in dependencies using Safety
       - name: Check dependencies with Safety
         run: |
+            pip freeze >> requirements.txt
             safety check -r requirements.txt --full-report || (echo "Vulnerable dependencies found" && exit 1)
 
         continue-on-error: true
