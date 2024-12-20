@@ -27,13 +27,11 @@ jobs:
       # Run static application security testing (SAST) with Bandit
       - name: SAST Scan with Bandit
         run: |
-          # Scan recursively (-r) with verbose output (-v) and report low severity issues (-ll LOW)
-          bandit -r . -v -ll LOW
-          # Check if Bandit found any issues ($? is the exit code of last command)
-          if [ $? -ne 0 ]; then
+          # Correcte syntax voor Bandit met severity level
+          bandit -r . -v --severity-level low || (
             echo "SAST scan found security issues"
             exit 1
-          fi
+          )
 
       # Check for known vulnerabilities in dependencies using Safety
       - name: Check dependencies with Safety
