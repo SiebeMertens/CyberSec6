@@ -41,7 +41,7 @@ jobs:
       - name: Check dependencies with Safety
         run: |
           # Create requirements.txt with current dependencies
-          pip freeze > requirements.txt
+          pip freeze >> requirements.txt
           # Run safety check with detailed report, fail if vulnerabilities found
           safety check --full-report || (echo "Vulnerable dependencies found" && exit 1)
         # Continue workflow even if this step fails
