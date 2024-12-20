@@ -1,4 +1,18 @@
 # vulnerable_app.py
+
 def insecure_function():
-    password = "hard_coded_password123"  # Dit zal de secrets check triggeren
-    exec(input("Enter command: "))  # Dit zal de SAST scan triggeren
+    # Hardcoded credentials (triggers secret detection)
+    AWS_SECRET_KEY = "AKIA1234567890ABCDEF"
+    DATABASE_PASSWORD = "super_secret_password123"
+    
+    # Dangerous function call (triggers SAST)
+    exec(input("Enter command: "))
+    
+    # SQL Injection vulnerability (triggers SAST)
+    query = "SELECT * FROM users WHERE id = " + user_input
+    
+    return "Done"
+
+# requirements.txt
+requests==2.3.0  # Oude versie met bekende kwetsbaarheden
+django==1.11.0   # Nog een oude versie met kwetsbaarheden
