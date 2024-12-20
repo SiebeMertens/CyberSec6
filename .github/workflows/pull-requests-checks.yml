@@ -10,42 +10,48 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      # Set up Python environment with version 3.10
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
+      # Install required security scanning tools using pip
       - name: Install dependencies
         run: |
+          # Update pip to latest version
           python -m pip install --upgrade pip
+          # Install security tools: bandit (SAST), safety (dependency checker), detect-secrets
           pip install bandit safety detect-secrets
 
+      # Run static application security testing (SAST) with Bandit
       - name: SAST Scan with Bandit
         run: |
-          bandit -r . -f json -o bandit-results.json
-        continue-on-error: true
+          # Scan recursively (-r) with verbose output (-v) and report low severity issues (-ll LOW)
+          bandit -r . -v -ll LOW
+          # Check if Bandit found any issues ($? is the exit code of last command)
+          if [ $? -ne 0 ]; then
+            echo "SAST scan found security issues"
+            exit 1
+          fi
 
+      # Check for known vulnerabilities in dependencies using Safety
       - name: Check dependencies with Safety
         run: |
-          safety check
+          # Create requirements.txt with current dependencies
+          pip freeze > requirements.txt
+          # Run safety check with detailed report, fail if vulnerabilities found
+          safety check --full-report || (echo "Vulnerable dependencies found" && exit 1)
+        # Continue workflow even if this step fails
         continue-on-error: true
 
+      # Scan codebase for potential secrets/credentials using detect-secrets
       - name: Check for secrets
         run: |
-          detect-secrets scan . > secrets-results.json
-
-      - name: Evaluate results
-        run: |
-          if [ -f bandit-results.json ]; then
-            if grep -q '"SEVERITY": "HIGH"' bandit-results.json; then
-              echo "SAST scan found high severity issues"
-              exit 1
-            fi
-          fi
-          
-          if [ -f secrets-results.json ]; then
-            if [ "$(cat secrets-results.json | grep -v '{}' | wc -l)" -gt 0 ]; then
-              echo "Secrets were detected in the codebase"
-              exit 1
-            fi
+          # Scan for secrets, filter empty results ('{}'), save to file
+          if detect-secrets scan . | grep -v '{}' > secrets.txt; then
+            echo "Secrets were detected in the codebase:"
+            # Display found secrets
+            cat secrets.txt
+            exit 1
           fi
