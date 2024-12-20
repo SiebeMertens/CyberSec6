@@ -12,7 +12,3 @@ def insecure_function():
     query = "SELECT * FROM users WHERE id = " + user_input
     
     return "Done"
-
-# requirements.txt
-requests==2.3.0  # Oude versie met bekende kwetsbaarheden
-django==1.11.0   # Nog een oude versie met kwetsbaarheden
